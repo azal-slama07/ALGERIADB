@@ -3,7 +3,8 @@
 
 //LLL Helpers
 TList* newNode(const char *name, const char *dob, const char *dod, const char *def) {
-    TList *n = (TList*)malloc(sizeof *n);
+    TList *n;
+    n = (TList*)malloc(sizeof *n);
     if (!n) return NULL;
     n->next = n->prev = NULL;
     n->type = 0;
@@ -70,7 +71,8 @@ int listLength(TList *head) {
 
 //Queue helpers
 TQueue* newQueue(void) {
-    TQueue *q = (TQueue*)calloc(1, sizeof(TQueue)); /* calloc zeros head/tail/size */
+    TQueue *q;
+    q = (TQueue*)calloc(1, sizeof(TQueue));
     return q;
 }
 
@@ -128,12 +130,13 @@ void freeQueue(TQueue *q) {
 
 //File loading : project functions
 TList* getPersonality(FILE *f) {
-    TList *head = NULL;
+    TList *head;
     char line[MAX_LINE];
     char name[MAX_NAME];
     char dob[MAX_DATE];
     char dod[MAX_DATE];
     char def[MAX_DEF];
+    head = NULL;
     rewind(f);
     while (fgets(line, MAX_LINE, f)) {
         if (!isPersonalityLine(line)) continue;
@@ -144,12 +147,13 @@ TList* getPersonality(FILE *f) {
 }
 
 TList* getDatePersonality(FILE *f) {
-    TList *head = NULL;
+    TList *head;
     char line[MAX_LINE];
     char name[MAX_NAME];
     char dob[MAX_DATE];
     char dod[MAX_DATE];
     char def[MAX_DEF];
+    head = NULL;
     rewind(f);
     while (fgets(line, MAX_LINE, f)) {
         if (!isPersonalityLine(line)) continue;
@@ -160,16 +164,18 @@ TList* getDatePersonality(FILE *f) {
 }
 
 TList* getEvents(FILE *f) {
-    TList *head = NULL;
+    TList *head;
     char line[MAX_LINE];
     char name[MAX_NAME];
     char date[MAX_DATE];
     char def[MAX_DEF];
+    TList *node;
+    head = NULL;
     rewind(f);
     while (fgets(line, MAX_LINE, f)) {
         if (!isEventLine(line)) continue;
         if (parseEventLine(line, name, date, def)) {
-            TList *node = newNode(name, date, "", def);
+            node = newNode(name, date, "", def);
             node->type = 1;
             appendNode(&head, node);
         }
@@ -178,7 +184,8 @@ TList* getEvents(FILE *f) {
 }
 
 void getInfoByDates(TList *s, const char *DoB) {
-    bool found = false;
+    bool found;
+    found = false;
     while (s) {
         if (strcmp(s->dob, DoB) == 0) {
             printf("Name: %s\n  DoB : %s\n  DoD : %s\n  Def : %s\n\n",
@@ -189,8 +196,10 @@ void getInfoByDates(TList *s, const char *DoB) {
     }
     if (!found) printf("No personality found with DoB: %s\n", DoB);
 }
+
 void getInfoByDates2(TList *s, const char *DoD) {
-    bool found = false;
+    bool found;
+    found = false;
     while (s) {
         if (strcmp(s->dod, DoD) == 0) {
             printf("Name: %s\n  DoB : %s\n  DoD : %s\n  Def : %s\n\n", s->name, s->dob, s->dod, s->definition);
@@ -225,9 +234,11 @@ int cmpAge(TList *a, TList *b) {
     return personalityAge(a->dob,a->dod) - personalityAge(b->dob,b->dod);
 }
 TList* sortListBy(TList *head, int(*cmp)(TList*,TList*)) {
-    TList *sorted = NULL;
-    TList *cur = head;
+    TList *sorted;
+    TList *cur;
     TList *next;
+    sorted = NULL;
+    cur = head;
     while (cur) { next = cur->next; cur->next=cur->prev=NULL; sorted=insertSortedInto(sorted,cur,cmp); cur=next; }
     return sorted;
 }
@@ -238,7 +249,10 @@ TList* sortPersonality(TList *lst) { return sortListBy(lst, cmpAge);   }
 
 /* ========== CRUD ========== */
 TList* deletePersonality(const char *filename, TList *s, TList *a, const char *name) {
-    TList *cur = s, *prev2 = NULL;
+    TList *cur;
+    TList *prev2;
+    cur = s;
+    prev2 = NULL;
     while (cur) {
         if (strcasecmp(cur->name, name) == 0) {
             if (prev2) prev2->next = cur->next; else s = cur->next;
@@ -250,10 +264,12 @@ TList* deletePersonality(const char *filename, TList *s, TList *a, const char *n
     if (filename) saveListToFile(filename, s, NULL);
     return s;
 }
+
 TList* updatePersonality(const char *filename, TList *s, TList *a,
                          const char *name, const char *definition,
                          const char *DoB, const char *DoD) {
-    TList *cur = s;
+    TList *cur;
+    cur = s;
     while (cur) {
         if (strcasecmp(cur->name, name) == 0) {
             if (definition && definition[0]) strncpy(cur->definition, definition, MAX_DEF-1);
@@ -267,6 +283,7 @@ TList* updatePersonality(const char *filename, TList *s, TList *a,
     if (filename) saveListToFile(filename, s, NULL);
     return s;
 }
+
 TList* addPersonality(TList *s, TList *a, const char *name,
                       const char *DoB, const char *DoD,
                       const char *def, const char *filename) {
@@ -276,6 +293,7 @@ TList* addPersonality(TList *s, TList *a, const char *name,
     printf("  Added '%s'.\n", name);
     return s;
 }
+
 TList* addEvents(TList *b, const char *nameEvent, const char *date,
                  const char *def, const char *filename) {
     appendNode(&b, newNode(nameEvent, date, "", def));
@@ -286,7 +304,10 @@ TList* addEvents(TList *b, const char *nameEvent, const char *date,
 
 /* ========== Special queries ========== */
 TList* similarPersonality(TList *s, const char *word) {
-    TList *result = NULL; int target = dateToYear(word);
+    TList *result;
+    int target;
+    result = NULL;
+    target = dateToYear(word);
     while (s) {
         if (dateToYear(s->dob)==target || dateToYear(s->dod)==target)
             appendNode(&result, newNode(s->name, s->dob, s->dod, s->definition));
@@ -294,11 +315,13 @@ TList* similarPersonality(TList *s, const char *word) {
     }
     return result;
 }
+
 TList* countPersonality(TList *s, Date *prt) {
-    TList *result = NULL;
+    TList *result;
     Date db;
     Date dd;
     bool match;
+    result = NULL;
     while (s) {
         db = parseDate(s->dob);
         dd = parseDate(s->dod);
@@ -311,6 +334,7 @@ TList* countPersonality(TList *s, Date *prt) {
     }
     return result;
 }
+
 static bool wordIsPalin(const char *s) {
     char low[MAX_NAME];
     int i;
@@ -329,10 +353,12 @@ static bool wordIsPalin(const char *s) {
     }
     return true;
 }
+
 TList* palindromeName(TList *s) {
-    TList *result = NULL;
+    TList *result;
     char buf[MAX_DEF];
     char *tok;
+    result = NULL;
     while (s) {
         strncpy(buf, s->definition, MAX_DEF-1);
         buf[MAX_DEF-1] = '\0';
@@ -351,9 +377,10 @@ TList* palindromeName(TList *s) {
 
 /* ========== Merge ========== */
 TList* mergeNodes(TList *s, TList *a) {
-    TList *result = NULL;
+    TList *result;
     TList *n;
     TList *cur;
+    result = NULL;
     while (s) {
         n = newNode(s->name, s->dob, s->dod, s->definition);
         appendNode(&result, n);
@@ -367,6 +394,7 @@ TList* mergeNodes(TList *s, TList *a) {
     (void)a;
     return result;
 }
+
 TList* merge2Nodes(TList *s, TList *a) {
     TList *result;
     TList *tail;
@@ -434,6 +462,7 @@ TQueue* sName(TList *s) {
     free(arr);
     return q;
 }
+
 TQueue* ageP(TList *a) {
     int n;
     TList **arr;
@@ -466,6 +495,7 @@ TQueue* ageP(TList *a) {
     free(arr);
     return q;
 }
+
 TQueue* toQueue(TList *merged) {
     TQueue *q;
     TList *start;
